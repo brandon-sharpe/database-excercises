@@ -35,7 +35,7 @@ WHERE name ='Nevermind';
 
 SELECT name -- Which albums were released in the 1990s? The Immaculate Collection
 FROM albums 
-WHERE release_date = 1990 ;
+WHERE release_date BETWEEN 1990 AND 1999 ;
 
 SELECT name  -- Which albums had less than 20 million certified sales? alot << run
 FROM albums
