@@ -13,11 +13,11 @@ AND birth_date LIKE '%-12-25'
 ORDER BY hire_date
 LIMIT 5; 
 
-/* Alselm	Cappello	
+/* Alselm Cappello	
 Utz	Mandell	
-Bouchung	Schreiter	
-Baocai	Kushner	
-Petter	Stroustrup*/
+Bouchung Schreiter	
+Baocai Kushner	
+Petter Stroustrup*/
 
 
 SELECT first_name, last_name, hire_date, birth_date
