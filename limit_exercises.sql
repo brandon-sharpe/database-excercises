@@ -14,7 +14,7 @@ ORDER BY hire_date
 LIMIT 5; 
 
 /* Alselm Cappello	
-Utz	Mandell	
+Utz Mandell	
 Bouchung Schreiter	
 Baocai Kushner	
 Petter Stroustrup*/
