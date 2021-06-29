@@ -14,9 +14,9 @@ FROM users
 RIGHT JOIN roles ON users.role_id = roles.id;
 
 -- 3. Although not explicitly covered in the lesson, aggregate functions like count can be used with join queries. Use count and the appropriate join type to get a list of roles along with the number of users that has the role. Hint: You will also need to use group by in the query.
-SELECT * , COUNT(roles.name)
+SELECT roles.id, COUNT(roles.id)
 FROM users
-JOIN roles ON users.role_id = roles.id
+RIGHT JOIN roles ON users.role_id = roles.id
 GROUP BY roles.name;
 
 
@@ -74,7 +74,7 @@ ORDER BY d.dept_name;
 
 -- 6. Find the number of current employees in each department.
 
-SELECT d.dept_no, d.dept_name, COUNT(de.dept_no)
+SELECT d.dept_no, d.dept_name, COUNT(de.dept_no) as number_of_emp
 FROM dept_emp AS de
 JOIN departments AS d
 	on d.dept_no = de.dept_no
@@ -121,6 +121,7 @@ LIMIT 1;
 -- 9. Which current department manager has the highest salary?
 SELECT first_name, last_name, s.salary, d.dept_name
 FROM dept_manager AS dm
+
 JOIN salaries AS s
 	ON s.emp_no = dm.emp_no
 	AND s.to_date >= NOW()
@@ -128,6 +129,7 @@ JOIN departments AS d
 	ON d.dept_no = dm.dept_no
 JOIN employees AS e
 	ON e.emp_no = dm.emp_no
+
 WHERE dm.to_date >= NOW()
 ORDER BY s.salary DESC
 LIMIT 1;
@@ -152,23 +154,62 @@ JOIN employees as mgr
 ORDER BY d.dept_name;
 
 -- 11
-SELECT first_name, last_name, d.dept_name,s.salary
-FROM employees AS e
-JOIN salaries AS s
-	ON s.emp_no = e.emp_no
-	AND s.to_date >= NOW()
-JOIN dept_emp AS de
-	ON de.emp_no = e.emp_no
-	AND de.to_date >= NOW()
-JOIN departments AS d
-	ON d.dept_no = de.dept_no
-JOIN dept_manager AS dm
-	ON dm.dept_no = d.dept_no
-	AND dm.to_date >= NOW()
-WHERE d.dept_no = 'd001' 
-ORDER BY s.salary DESC
-LIMIT 2;
-
-
+SELECT 
+	t1.dept_name AS 'Department Name',
+	t1.salary AS 'Salary',
+	CONCAT(first_name,' ', last_name) AS 'Employee Name'
+FROM 
+	(
+	-- Part 1 which builds the base table to employee names, salaries and dept names
+	SELECT
+		salary, dept_name, first_name, last_name
+	FROM
+		salaries
+	JOIN
+		dept_emp 
+	USING(emp_no)
+	JOIN 
+		departments 
+	USING(dept_no)
+	JOIN 
+		employees
+	USING(emp_no)
+	WHERE 
+		dept_emp.to_date >= NOW()
+	AND 
+		salaries.to_date >= NOW()
+	) AS t1 # This is table_1 result created
+INNER JOIN
+	(
+	-- Part 2 builds another table to cross reference the previous part with the calculated max salaries
+	SELECT dept_name, MAX(salary) as max_salary
+	FROM 
+		(
+		SELECT
+			salary, dept_name, first_name, last_name
+		FROM
+			salaries
+		JOIN
+			dept_emp 
+		USING(emp_no)
+		JOIN 
+			departments 
+		USING(dept_no)
+		JOIN 
+			employees
+		USING(emp_no)
+		WHERE 
+			dept_emp.to_date >= NOW()
+			AND 
+			salaries.to_date >= NOW()
+		) as t2
+	GROUP BY dept_name
+	) AS t2 # This is table_2 result created
+	-- Joins both tables based on the dept_name and matches the salary & department name with the max_salary
+	ON 
+	t1.dept_name = t2.dept_name
+	AND
+	t1.salary = t2.max_salary
+ORDER BY 'Department Name' DESC;
 
 
